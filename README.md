@@ -13,7 +13,7 @@ This project is a dynamic Spring Boot application designed to streamline the man
 5. 📊 **Role Management**: Different functionalities for admins and superiors.
 6. 🔒 **User Authentication and Authorization**: Secure login for admins and superiors.
 
-## 🛠️ Technologies Used
+## Technologies
 
 **Frontend**:
 - HTML
