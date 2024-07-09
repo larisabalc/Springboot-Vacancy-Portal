@@ -1,0 +1,12 @@
+spring:
+  thymeleaf:
+    default-view-name: register
+    cache: false
+    mode: HTML
+    encoding: UTF-8
+    prefix: file:src/main/resources/templates/
+  web:
+    resources:
+      static-locations: file:src/main/resources/static/
+      cache:
+        period: 0

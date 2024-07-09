@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Employee</title></head>
+    <body>
+
+        <h2>Employee Page</h2>
+
+        <div th:replace="fragments/calendar :: ~{calendar}"></div>
+
+        <h3>Days Off Entries</h3>
+        <table>
+            <thead>
+            <tr>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Approved</th>
+                <th>Message</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="daysOff : ${userDaysOff}">
+                <td th:text="${#temporals.format(daysOff.getStartDate(), 'yyyy-MM-dd')}"></td>
+                <td th:text="${#temporals.format(daysOff.getEndDate(), 'yyyy-MM-dd')}"></td>
+                <td th:text="${daysOff.getIsApproved() == null ? 'Waiting' : (daysOff.getIsApproved() ? 'Approved' : 'Not Approved')}"></td>
+                <td th:text="${daysOff.getMessage()}"></td>
+            </tr>
+            </tbody>
+        </table>
+
+    <script th:inline="javascript">
+        function getQueryParam(name) {
+            const urlSearchParams = new URLSearchParams(window.location.search);
+            return urlSearchParams.get(name);
+        }
+
+        function displayAlert() {
+            const error = getQueryParam('error');
+
+            if (error === 'InvalidDates') {
+                alert('Error: Dates are not in the current year.');
+            } else if (error === 'DatesTooSoon') {
+                alert('Error: Dates are not at least a week in the future.');
+            } else if (error === 'OverlappingDates') {
+                alert('Error: Dates are overlapping.');
+            } else if (error === 'NoDaysOffRemained') {
+                alert('Error: You have no more days off.');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            displayAlert();
+        });
+    </script>
+    </body>
+</html>

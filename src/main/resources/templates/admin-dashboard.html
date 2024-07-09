@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f2f2f2;
+                color: #555;
+                margin: 20px;
+            }
+
+            form {
+                margin-bottom: 20px;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+            }
+
+            th, td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: center;
+            }
+
+            th {
+                background-color: #ddd;
+            }
+
+            .selectable {
+                cursor: pointer;
+            }
+
+            .selected {
+                background-color: #7eb8da;
+                color: #fff;
+            }
+
+            .highlighted {
+                background-color: #ccc;
+            }
+
+            #selectedDatesText {
+                font-weight: bold;
+                margin-top: 10px;
+            }
+
+            button {
+                background-color: #333;
+                color: #fff;
+                border: none;
+                padding: 10px 20px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+                margin-top: 10px;
+                cursor: pointer;
+            }
+
+            button:hover {
+                background-color: #555;
+            }
+        </style>
+        <title>Admin</title>
+    </head>
+    <body>
+        <form th:action="@{/admin}" method="post" id="makeSuperiorForm">
+            <table>
+                <thead>
+                <tr>
+                    <th></th>
+                    <th>Id</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Superior</th>
+                    <th>Current role</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="employee : ${employees}">
+                    <td>
+                        <input type="checkbox" name="selectedEmployees" th:data-employee-id="${employee.id}" />
+                    </td>
+                    <input type="hidden" name="userId" th:value="${employee.id}" />
+                    <td th:text="${employee.id}"></td>
+                    <td th:text="${employee.username}"></td>
+                    <td th:text="${employee.email}"></td>
+                    <td th:text="${employee.getUser() != null ? employee.getUser().getUsername() : ''}"></td>
+                    <td>
+                        <ul>
+                            <p th:each="role : ${employee.roles}" th:text="${role.getName()}"></p>
+                        </ul>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <input type="hidden" name="selectedEmployeeIds" th:value="${selectedEmployeeIds}" />
+            <input type="hidden" name="action" value="updateDatabase">
+
+            <button type="submit">Make Superior</button>
+        </form>
+
+        <hr></hr>
+        <h1>Employees List</h1>
+        <form th:action="@{/admin}" method="POST" id="displaySubordinatesForm">
+            <select name="selectedSuperiorId">
+                <option th:each="superiors : ${superiors}" th:value="${superiors.getId()}" th:text="${superiors.getUsername()}"></option>
+            </select>
+            <input type="hidden" name="selectedSuperiorId" id="selectedSuperiorId" />
+            <input type="hidden" name="action" value="displaySubordinates">
+            <button type="submit" name="action" value="displaySubordinates">Display Subordinates</button>
+            <table>
+                <thead>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Delete</th>
+                </thead>
+                <tbody>
+                    <tr th:each="employee : ${subordinates}">
+                        <td th:text="${employee.getUsername()}"></td>
+                        <td th:text="${employee.getEmail()}"></td>
+                        <td>
+                            <form th:action="@{/admin}" th:method="post" id="deleteForm" style="display: inline;">
+                                <input type="hidden" name="action" value="deleteEmployee">
+                                <input type="hidden" name="employeeId" th:value="${employee.getId()}" />
+                                <button type="button" name="action" value="deleteEmployee" th:onclick="'deleteEmployee(' + ${employee.id} + ')'">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+
+    <script th:inline="javascript">
+        function deleteEmployee(employeeId) {
+            document.getElementById('deleteForm').submit();
+        }
+
+        document.getElementById('makeSuperiorForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            var selectedEmployeeIds = [];
+            document.querySelectorAll('input[name="selectedEmployees"]:checked').forEach(function(checkbox) {
+                selectedEmployeeIds.push(checkbox.getAttribute('data-employee-id'));
+            });
+
+            document.querySelector('input[name="selectedEmployeeIds"]').value = selectedEmployeeIds.join(',');
+            console.log(selectedEmployeeIds);
+
+            this.submit();
+        });
+
+        document.getElementById('displaySubordinatesForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            var selectedSuperiorId = document.querySelector('select[name="selectedSuperiorId"]').value;
+            document.getElementById('selectedSuperiorId').value = selectedSuperiorId;
+
+            this.submit();
+        });
+    </script>
+    </body>
+</html>

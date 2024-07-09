@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        form {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 300px;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px 0;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        span {
+            color: red;
+            font-size: small;
+        }
+
+        button {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        a {
+            display: block;
+            margin-top: 15px;
+            color: #333;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <form th:action="@{/register}" th:object="${user}" method="POST">
+        <div style=" display: flex; flex-direction: column;">
+            <label>Username:</label>
+            <input placeholder="username"
+                   name="username"
+                   th:field="*{username}">
+            <span style="color: red; font-size: small" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></span>
+
+            <label>Email: </label>
+            <input placeholder="email"
+                   name="email"
+                   th:field="*{email}">
+            <span style="color: red; font-size: small" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
+
+            <label>Password</label>
+            <input placeholder="password"
+                   type="password"
+                   name="password"
+                   th:field="*{password}">
+            <span style="color: red; font-size: small" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></span>
+            <!-- Check repeat password -->
+            <input placeholder="repeat password"
+                   type="password"
+                   name="repeatPassword"
+                   th:field="*{repeatPassword}">
+            <span style="color: red; font-size: small" th:if="${#fields.hasErrors('repeatPassword')}" th:errors="*{repeatPassword}"></span>
+            <button type="submit">REGISTER</button>
+        </div>
+        <a th:href="@{/login}">Login</a>
+    </form>
+</body>
+</html>

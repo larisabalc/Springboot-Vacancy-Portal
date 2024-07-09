@@ -1,0 +1,157 @@
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f2f2f2;
+        color: #555;
+        margin: 20px;
+    }
+
+    form {
+        margin-bottom: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center;
+    }
+
+    th {
+        background-color: #ddd;
+    }
+
+    .selectable {
+        cursor: pointer;
+    }
+
+    .selected {
+        background-color: #7eb8da;
+        color: #fff;
+    }
+
+    .highlighted {
+        background-color: #ccc;
+    }
+
+    #selectedDatesText {
+        font-weight: bold;
+        margin-top: 10px;
+    }
+
+    button {
+        background-color: #333;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin-top: 10px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #555;
+    }
+</style>
+
+<form th:action="${isSuperior ? '/superior' : '/employee'}" method="get">
+    <p id="noDaysOff" th:text="'Free Days: ' + ${noDaysOff}"></p>
+    <p th:text="'Current Month: ' + ${#dates.format(#dates.create(currentYear, currentMonth, 1), 'MMMM yyyy')}"></p>
+
+    <input type="hidden" name="year" th:value="${currentYear}" />
+    <input type="hidden" name="month" th:value="${currentMonth}" />
+
+    <button type="submit" name="prevYear" th:value="${currentYear - 1}">Previous Year</button>
+    <button type="submit" name="nextYear" th:value="${currentYear + 1}">Next Year</button>
+    <button type="submit" name="prevMonth" th:value="${currentMonth - 1}">Previous Month</button>
+    <button type="submit" name="nextMonth" th:value="${currentMonth + 1}">Next Month</button>
+</form>
+
+<table>
+    <thead>
+    <tr>
+        <th>Sun</th>
+        <th>Mon</th>
+        <th>Tue</th>
+        <th>Wed</th>
+        <th>Thu</th>
+        <th>Fri</th>
+        <th>Sat</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="week : ${calendar}">
+        <td th:each="day : ${week}">
+            <div th:if="${day != null}" th:text="${day}" th:class="${day != null}? 'selectable' : ''" th:data-date="${#dates.format(#dates.create(currentYear, currentMonth, day), 'yyyy-MM-dd')}" th:onclick="toggleSelection(this)"></div>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<script th:inline="javascript">
+    function toggleSelection(element) {
+        var dateString = element.getAttribute("data-date");
+
+        var selectedDates = document.getElementsByClassName("selected");
+
+        if (selectedDates.length === 2) {
+            Array.from(selectedDates).forEach(function (elem) {
+                elem.classList.remove("selected");
+                elem.classList.remove("highlighted");
+            });
+        }
+
+        element.classList.toggle("selected");
+
+        updateSelectedDates();
+    }
+
+    function updateSelectedDates() {
+        var selectedDates = document.getElementsByClassName("selected");
+
+        var dateArray = Array.from(selectedDates).map(function (elem) {
+            return new Date(elem.getAttribute("data-date"));
+        });
+
+        dateArray.sort(function (a, b) {
+            return a - b;
+        });
+
+        var startDate = (dateArray.length > 0) ? dateArray[0] : null;
+        var endDate = (dateArray.length > 1) ? dateArray[dateArray.length - 1] : null;
+
+        var allDays = document.querySelectorAll('.selectable');
+
+        Array.from(allDays).forEach(function (day) {
+            var currentDate = new Date(day.getAttribute("data-date"));
+            if (startDate && endDate && currentDate >= startDate && currentDate <= endDate) {
+                day.classList.add("highlighted");
+            } else {
+                day.classList.remove("highlighted");
+            }
+        });
+
+        document.getElementById("selectedStartDate").value = startDate ? startDate.toISOString() : null;
+        document.getElementById("selectedEndDate").value = endDate ? endDate.toISOString() : null;
+
+        var displayText = (startDate && endDate) ? 'Selected Dates: ' + startDate.toISOString().substring(0, 10) + ' to ' + endDate.toISOString().substring(0, 10) : 'No dates selected';
+        document.getElementById("selectedDatesText").innerText = displayText;
+    }
+</script>
+
+<form method="post" th:action="${isSuperior ? '/superior' : '/employee'}">
+    <input type="hidden" id="selectedStartDate" name="selectedStartDate" />
+    <input type="hidden" id="selectedEndDate" name="selectedEndDate" />
+
+    <p id="selectedDatesText">No dates selected</p>
+
+    <button type="submit" onclick="sendSelectedDates()">Send</button>
+</form>
